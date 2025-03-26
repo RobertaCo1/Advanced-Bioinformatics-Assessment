@@ -1,0 +1,517 @@
+---
+title: "Advanced Bioinformatics 2025 assessment"
+author: 'Student ID: 2407303 (SGUL) or k24121590 (KCL)'
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+TASK 3.1
+sum(5:55)
+
+
+TASK 3.2
+# Define the sumfun function
+sumfun <- function(n) {
+  sum(5:n)
+}
+
+# Test the function with different values of n
+result_10 <- sumfun(10)
+result_20 <- sumfun(20)
+result_100 <- sumfun(100)
+
+# Print the results
+cat("Sum of integers between 5 and 10:", result_10, "\n")
+cat("Sum of integers between 5 and 20:", result_20, "\n")
+cat("Sum of integers between 5 and 100:", result_100, "\n")
+
+
+TASK 3.3
+# Initialize the first two Fibonacci numbers
+fib <- numeric(12)  # Create an empty vector to store the Fibonacci series
+fib[1] <- 1  # First Fibonacci number
+fib[2] <- 1  # Second Fibonacci number
+
+# Use a for loop to calculate the rest of the Fibonacci numbers
+for (i in 3:12) 
+{fib[i] <- fib[i - 1] + fib[i - 2]  # Each Fibonacci number is the sum of the previous two}
+
+# Print the first 12 Fibonacci numbers
+print(fib)
+
+
+TASK 3.4
+# Load ggplot2 package
+library(ggplot2)
+
+# Create a boxplot using ggplot2
+ggplot(mtcars, aes(x = factor(gear), y = mpg, fill = factor(gear))) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Miles per Gallon (mpg) by Number of Gears",
+       x = "Number of Gears",
+       y = "Miles per Gallon (mpg)",
+       fill = "Number of Gears") + theme_minimal()
+
+
+TASK 3.5
+# Load the cars dataset
+data(cars)
+
+# Fit a linear model using lm() function
+model <- lm(dist ~ speed, data = cars)
+
+# Display the summary of the model to get the fitted slope, intercept, and standard errors
+summary(model)
+
+TASK 3.6
+# Load ggplot2 package
+library(ggplot2)
+
+# Load the cars dataset
+data(cars)
+
+# Create a scatter plot of speed vs. distance, with a linear regression line
+ggplot(cars, aes(x = speed, y = dist)) +
+  geom_point() +  # Add data points as a scatter plot
+  geom_smooth(method = "lm", color = "blue", se = FALSE) +  # Add linear regression line
+  labs(title = "Speed vs. Breaking Distance with Linear Fit",
+       x = "Speed (mph)",
+       y = "Breaking Distance (ft)") +
+  theme_minimal()
+  
+TASK 3.7
+# Load necessary libraries
+library(ggplot2)
+
+# Load the cars dataset
+data(cars)
+
+# Create a new variable for speed squared (since braking distance is proportional to speed^2)
+cars$speed_squared <- cars$speed^2
+
+# Fit a linear model to the data, where dist = reaction_time * speed + k * speed^2
+model <- lm(dist ~ speed + speed_squared, data = cars)
+
+# Display the summary of the model
+summary(model)
+
+# Extract the estimated reaction_time (coefficient of 'speed') and k (coefficient of 'speed_squared')
+reaction_time <- coef(model)["speed"]
+k <- coef(model)["speed_squared"]
+
+# Print the estimated reaction time and k
+cat("Estimated Reaction Time: ", reaction_time, " seconds\n")
+cat("Estimated k (braking distance proportionality constant): ", k, "\n")
+
+# Now, let's plot the data points and the fitted relationship
+ggplot(cars, aes(x = speed, y = dist)) +
+  geom_point() +  # Scatter plot of the data points
+  geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = FALSE, color = "blue") +  # Fitted line
+  labs(title = "Speed vs. Braking Distance with Fitted Reaction Time Model",
+       x = "Speed (mph)",
+       y = "Braking Distance (ft)") +
+  theme_minimal()
+  
+
+RNA-seq assessment 
+
+TASK 3.8
+
+count_data <- read.csv("C:/Users/ContinoR/Downloads/LMS_RNAseq_short-master-2023-final/LMS_RNAseq_short-master-2023-final/course/exercises/data/exercise1_counts.csv", row.names = 1)
+
+head(count_data)
+
+sample_description <- read.csv("C:/Users/ContinoR/Downloads/LMS_RNAseq_short-master-2023-final/LMS_RNAseq_short-master-2023-final/course/exercises/data/exercise1_sample_description.csv")
+
+head(sample_description)
+
+TASK 3.9
+
+# Create col_data by selecting relevant columns from sample_description
+col_data <- sample_description[c("filename", "sample", "condition", "batch")]
+
+# Check the dimensions of col_data
+dim(col_data)
+
+TASK 3.10
+
+# Check if count_data is a matrix or data frame with genes as rows and samples as columns
+dim(count_data)
+
+# Check that col_data has the correct columns and row names match the samples in count_data
+dim(col_data) 
+
+head(col_data)
+
+library(DESeq2)
+
+# Construct DESeqDataSet object
+dds <- DESeqDataSetFromMatrix(countData = count_data, 
+                               colData = col_data, 
+                               design = ~ condition)
+
+# Check the DESeqDataSet object
+dds
+
+# Check the dimensions of dds
+dim(dds)
+
+
+TASK 3.11
+
+# Load DESeq2 package
+library(DESeq2)
+
+# Perform rlog transformation
+rlog_data <- rlog(dds, blind = TRUE)
+
+# Check the transformed data (rlog transformed counts)
+head(assay(rlog_data))
+
+# View the dimensions of the rlog-transformed data
+dim(rlog_data)
+
+# Perform VST transformation
+vst_data <- vst(dds, blind = TRUE)
+
+# Check the transformed data (VST transformed counts)
+head(assay(vst_data))
+
+# View the dimensions of the VST-transformed data
+dim(vst_data)
+
+
+TASK 3.12
+
+library(DESeq2)
+library(pheatmap)
+
+# Perform rlog or VST transformation (choose one)
+rlog transformation
+rlog_data <- rlog(dds, blind = TRUE)
+or
+VST transformation (you can switch between rlog and VST)
+vst_data <- vst(dds, blind = TRUE)
+
+# Extract the rlog or VST transformed count matrix
+rlog_matrix <- assay(rlog_data)  # If using rlog
+or
+vst_matrix <- assay(vst_data)  # If using VST
+
+#Select the top 40 genes with the highest variance
+gene_variances <- apply(rlog_matrix, 1, var)  # Variance for each gene (rows)
+top40_genes <- order(gene_variances, decreasing = TRUE)[1:40]  # Select top 40 genes
+
+# Extract the data for the top 40 genes
+top40_data <- rlog_matrix[top40_genes, ]  # If using rlog
+or
+top40_data <- vst_matrix[top40_genes, ]  # If using VST
+
+# Draw a heatmap
+pheatmap(top40_data, 
+         cluster_rows = TRUE, 
+         cluster_cols = TRUE, 
+         scale = "row",  # Scale by rows to make gene expression comparable
+         show_rownames = TRUE, 
+         show_colnames = TRUE,
+         main = "Heatmap of Top 40 Highly Expressed Genes")
+         
+
+TASK 3.13
+install.packages("DESeq2")
+install.packages("pheatmap")
+library(DESeq2)
+library(kohonen)
+library(pheatmap)
+
+# Perform rlog transformation
+rlog_data <- rlog(dds, blind = TRUE)
+
+# Extract the rlog transformed count matrix
+rlog_matrix <- assay(rlog_data)  # If using rlog
+
+# Calculate the Euclidean distance between samples (columns)
+sample_distance_matrix <- dist(t(rlog_matrix), method = "euclidean")  # `t()` transposes the matrix to make samples the columns
+
+# Visualize the Sample Distance Matrix using a heatmap
+pheatmap(as.matrix(sample_distance_matrix), 
+         clustering_distance_rows = "euclidean", 
+         clustering_distance_cols = "euclidean", 
+         clustering_method = "complete", 
+         main = "Sample Distance Matrix (SDM)")
+         
+         
+TASK 3.14
+
+install.packages("DESeq2")
+install.packages("ggplot2")
+library(DESeq2)
+library(ggplot2)
+
+# Perform rlog transformation 
+rlog_data <- rlog(dds, blind = TRUE)
+
+# Extract the transformed count matrix
+rlog_matrix <- assay(rlog_data)
+
+# Perform PCA on the rlog-transformed count matrix (using the transposed matrix)
+pca_result <- prcomp(t(rlog_matrix))  # Transpose to make samples as rows
+
+# Calculate the proportion of variance explained by each principal component
+pca_variance <- summary(pca_result)$importance[2,] * 100  # The second row gives the proportion of variance
+
+# Print the percentage of variance explained by each component
+pca_variance
+
+# Create a data frame with PCA results for plotting
+pca_data <- data.frame(PC1 = pca_result$x[, 1], 
+                       PC2 = pca_result$x[, 2],
+                       sample = colnames(rlog_matrix))  # Sample labels
+                       
+# Plot the PCA results using ggplot2
+ggplot(pca_data, aes(x = PC1, y = PC2, label = sample)) +
+  geom_point() + 
+  geom_text(aes(label = sample), vjust = 1, hjust = 1) +
+  xlab(paste("PC1: ", round(pca_variance[1], 2), "% variance")) +
+  ylab(paste("PC2: ", round(pca_variance[2], 2), "% variance")) +
+  ggtitle("PCA of rlog-transformed RNA-Seq Data") +
+  theme_minimal()
+  
+  
+TASK 3.15
+
+install.packages("DESeq2")
+install.packages("ggplot2")
+library(DESeq2)
+library(ggplot2)
+
+# Perform rlog transformation (if not already done)
+rlog_data <- rlog(dds, blind = TRUE)
+
+# Extract the rlog transformed count matrix
+rlog_matrix <- assay(rlog_data)
+
+# Perform VST transformation
+vst_data <- vst(dds, blind = TRUE)
+
+# Extract the VST transformed count matrix
+vst_matrix <- assay(vst_data)
+
+# Perform PCA on the rlog-transformed count matrix (transposed matrix to make samples rows)
+pca_rlog <- prcomp(t(rlog_matrix))  # Transpose to make samples as rows
+
+# Perform PCA on the VST-transformed count matrix (transposed matrix to make samples rows)
+pca_vst <- prcomp(t(vst_matrix))  # Transpose to make samples as rows
+
+# Calculate variance explained for rlog data
+pca_rlog_variance <- summary(pca_rlog)$importance[2,] * 100  # Percentage of variance explained
+
+# Calculate variance explained for VST data
+pca_vst_variance <- summary(pca_vst)$importance[2,] * 100  # Percentage of variance explained
+
+# Print the variance explained
+pca_rlog_variance
+
+pca_vst_variance
+
+# PCA data for rlog
+pca_rlog_data <- data.frame(PC1 = pca_rlog$x[, 1], 
+                            PC2 = pca_rlog$x[, 2],
+                            sample = colnames(rlog_matrix))
+                            
+# PCA data for VST
+pca_vst_data <- data.frame(PC1 = pca_vst$x[, 1], 
+                           PC2 = pca_vst$x[, 2],
+                           sample = colnames(vst_matrix))
+                           
+# Plot the PCA for rlog
+ggplot(pca_rlog_data, aes(x = PC1, y = PC2, label = sample)) +
+  geom_point() + 
+  geom_text(aes(label = sample), vjust = 1, hjust = 1) +
+  xlab(paste("PC1: ", round(pca_rlog_variance[1], 2), "% variance")) +
+  ylab(paste("PC2: ", round(pca_rlog_variance[2], 2), "% variance")) +
+  ggtitle("PCA of rlog-transformed RNA-Seq Data") +
+  theme_minimal()
+
+# Plot the PCA for VST
+ggplot(pca_vst_data, aes(x = PC1, y = PC2, label = sample)) +
+  geom_point() + 
+  geom_text(aes(label = sample), vjust = 1, hjust = 1) +
+  xlab(paste("PC1: ", round(pca_vst_variance[1], 2), "% variance")) +
+  ylab(paste("PC2: ", round(pca_vst_variance[2], 2), "% variance")) +
+  ggtitle("PCA of VST-transformed RNA-Seq Data") +
+  theme_minimal()
+  
+  
+ChIP-seq assessment 
+
+setwd("C:/Users/ContinoR/Downloads/LMS_ChIPseq_short-master-2023-final")
+
+BiocManager::install("GenomicRanges")
+library(GenomicRanges)
+
+TASK 3.16
+
+# Define the file paths
+rep1 <- "C:/Users/ContinoR/Downloads/LMS_ChIPseq_short-master-2023-final/LMS_ChIPseq_short-master-2023-final/course/data/MacsPeaks/mycmelrep1_peaks.xls"
+file.exists(rep1)
+
+rep2 <- "C:/Users/ContinoR/Downloads/LMS_ChIPseq_short-master-2023-final/LMS_ChIPseq_short-master-2023-final/course/data/MacsPeaks/mycmelrep2_peaks.xls"
+file.exists(rep2)
+
+# Read in the data from the .xls files 
+macsPeaks_DF1 <- read.delim(rep1,comment.char="#")
+macsPeaks_DF1[1:2,]
+
+macsPeaks_DF2 <- read.delim(rep2,comment.char="#")
+macsPeaks_DF2[1:2,]
+
+Now we have the information in a table we can create a GRanges object.
+library(GenomicRanges)
+
+macsPeaks_GR1 <- GRanges(
+ seqnames=macsPeaks_DF1[,"chr"],
+ IRanges(macsPeaks_DF1[,"start"],
+         macsPeaks_DF1[,"end"]
+ )
+)
+
+macsPeaks_GR1
+
+and 
+
+macsPeaks_GR2 <- GRanges(
+ seqnames=macsPeaks_DF2[,"chr"],
+ IRanges(macsPeaks_DF2[,"start"],
+         macsPeaks_DF2[,"end"]
+ )
+)
+
+macsPeaks_GR2
+
+
+# Find the overlaps between the two GRanges objects
+overlaps <- findOverlaps(macsPeaks_GR1, macsPeaks_GR2)
+
+# Create a common peakset by extracting the ranges that overlap
+common_peaks_rep1 <- macsPeaks_GR1[queryHits(overlaps)]
+common_peaks_rep2 <- macsPeaks_GR2[subjectHits(overlaps)] 
+
+# View the common peaks (GRanges object)
+common_peaks
+
+# Remove fold enrichment from common_peaks
+mcols(common_peaks) <- NULL
+
+# Print the modified GRanges object
+common_peaks
+
+
+TASK 3.17
+library(GenomicRanges)
+
+# Add fold enrichment from both replicates 
+mcols(common_peaks)$fold_enrichment1 <- macsPeaks_DF1$fold_enrichment[queryHits(overlaps)]
+mcols(common_peaks)$fold_enrichment2 <- macsPeaks_DF2$fold_enrichment[subjectHits(overlaps)]
+
+# View updated common_peaks
+common_peaks
+
+Option 1: 
+#Rank by the First Replicate (fold_enrichment1)
+common_peaks_sorted <- common_peaks[order(-common_peaks$fold_enrichment1)]
+#Select **top 500 peaks**
+top500_peaks <- common_peaks_sorted[1:500]
+#Resize peaks to **200 bp centered around the summit**
+top500_resized_peaks <- resize(top500_peaks, width = 200, fix = "center")
+#Print top peaks
+head(top500_resized_peaks)
+
+Option 2:
+#Rank by the Second Replicate (fold_enrichment2)
+common_peaks_sorted <- common_peaks[order(-common_peaks$fold_enrichment2)]
+#Select **top 500 peaks**
+top500_peaks <- common_peaks_sorted[1:500]
+#Resize peaks to **200 bp centered around the summit**
+top500_resized_peaks <- resize(top500_peaks, width = 200, fix = "center")
+#Print top peaks
+head(top500_resized_peaks)
+
+I will use the rep1/fold enrichment1 for task 3.18, therefore I will remove fold enrichment2 column
+#Remove fold enrichment2 from common_peaks
+mcols(common_peaks)$fold_enrichment2 <- NULL
+#Rank by the First Replicate (fold_enrichment1)
+common_peaks_sorted <- common_peaks[order(-common_peaks$fold_enrichment1)]
+#Select **top 500 peaks**
+top500_peaks <- common_peaks_sorted[1:500]
+#Resize peaks to **200 bp centered around the summit**
+top500_resized_peaks <- resize(top500_peaks, width = 200, fix = "center")
+#Print top peaks
+head(top500_resized_peaks)
+
+
+
+TASK 3.18
+
+BiocManager::install("Biostrings")
+BiocManager::install("BSgenome")
+library(GenomicRanges)
+library(BSgenome)
+library(BSgenome.Mmusculus.UCSC.mm9)
+library(Biostrings)
+
+#Define output FASTA file path
+output_fasta <- "C:/Users/ContinoR/Downloads/top500_peaks_sequences.fasta"
+
+# Load mm9 genome
+genome <- BSgenome.Mmusculus.UCSC.mm9
+
+# Check if the seqlevelsStyle for our common peaks matches that seen in UCSC.
+seqlevelsStyle(common_peaks_sorted) <- "UCSC"
+
+#Provide a peak set resized to 200bp
+commonPeaks <- resize(common_peaks_sorted,200,fix="center")
+commonPeaks[1:4,]
+
+#Extract sequences from the common peaks
+commonPeaksSequences <- getSeq(genome,GRanges(commonPeaks))
+names(commonPeaksSequences) <- paste0("peak_",seqnames(commonPeaks),"_",
+                                         start(commonPeaks),
+                                         "-",
+                                         end(commonPeaks))
+                                         
+commonPeaksSequences[1:2,]
+
+# Rename Sequences with (ID1), (ID2)...
+names(sequences) <- paste0("(ID", seq_along(sequences), ")")
+
+# Write sequences to FASTA format
+writeXStringSet(sequences, filepath = output_fasta, format = "fasta")
+
